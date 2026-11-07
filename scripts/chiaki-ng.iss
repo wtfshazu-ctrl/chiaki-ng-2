@@ -44,6 +44,8 @@ SetupIconFile=..\gui\rentpass.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+WizardImageFile=rentpass-wizard.bmp
+WizardSmallImageFile=rentpass-wizard-small.bmp
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
