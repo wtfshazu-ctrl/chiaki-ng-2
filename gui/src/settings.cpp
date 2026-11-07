@@ -402,6 +402,15 @@ void Settings::ImportRentPassConfig()
 	settings.sync();
 }
 
+// RentPass: re-set the imported marker after a server config import (see
+// QmlBackend::rentPassFetchServerConfig). ImportSettings clears the
+// settings first, which wipes the marker.
+void Settings::MarkRentPassConfigImported()
+{
+	settings.setValue("rentpass_config_imported", true);
+	settings.sync();
+}
+
 // RentPass: wipe the live settings (Windows registry) completely. Used when
 // a rental session ends (timer expiry / server revoke) so the app keeps no
 // console, registration keys, keymap or video settings behind.
