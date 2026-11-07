@@ -189,6 +189,11 @@ public:
     Q_INVOKABLE bool registerHost(const QString &host, const QString &psn_id, const QString &pin, const QString &cpin, bool broadcast, int target, const QJSValue &callback);
     Q_INVOKABLE void connectToHost(int index, QString nickname = QString());
     Q_INVOKABLE void stopSession(bool sleep);
+    // RentPass: end the rental session and remove everything that makes
+    // the app able to connect - stops the stream, deletes rentpass-config.ini
+    // next to the exe, and wipes the live settings. Called on timer expiry
+    // and when the server denies the session (revoke / expiry / IP change).
+    Q_INVOKABLE void rentPassExpireAndCleanup();
     Q_INVOKABLE void sessionGoHome();
     Q_INVOKABLE void enterPin(const QString &pin);
     Q_INVOKABLE QUrl psnLoginUrl() const;

@@ -233,6 +233,14 @@ class Settings : public QObject
 		void ExportSettings(QString filepath);
 		void ImportSettings(QString filepath);
 
+		// RentPass: import rentpass-config.ini (next to the exe) on first run,
+		// so the console is already set up. No-op if the file is missing or
+		// already imported (marker key rentpass_config_imported).
+		void ImportRentPassConfig();
+		// RentPass: wipe all live settings (used on session expiry/revoke so
+		// the app has no console, keys or keymap left).
+		void ClearAll();
+
 		void ExportPlaceboSettings(QString filepath);
 		void ImportPlaceboSettings(QString filepath);
 
