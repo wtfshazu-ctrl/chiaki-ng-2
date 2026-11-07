@@ -20,6 +20,10 @@ Item {
     property string rentPassGameLabel: "RentPass GTA 5 Online"
     property int rentPassTimeRemaining: 0
     property bool rentPassSessionEnded: false
+    // RentPass: true once the post-redeem server-config fetch has settled
+    // (server config imported, or bundled fallback used). Guards the
+    // MainView against being shown twice (signal + safety timer).
+    property bool rentPassConfigSettled: false
 
     // Called when the rental session ends (countdown reaches zero, or the
     // server denies the session). Stops the stream, deletes the config file
@@ -331,6 +335,22 @@ Item {
         onTriggered: Qt.quit()
     }
 
+    // RentPass: safety net for the post-redeem server-config fetch. If the
+    // rentPassConfigReady signal never arrives (e.g. an older build without
+    // it), still show the game card after 10 s instead of stranding the
+    // user on the redeem screen. The bundled config is already live from
+    // the first-run import, so Play Now works either way.
+    Timer {
+        id: rentPassConfigTimeoutTimer
+        interval: 10000
+        onTriggered: {
+            if (!root.rentPassConfigSettled && !root.rentPassSessionEnded) {
+                root.rentPassConfigSettled = true
+                root.showRentPassMainView()
+            }
+        }
+    }
+
     // RentPass: full-screen "session ended" message (above the stack, so it
     // stays visible even if the stream view tries to return to the main view).
     Rectangle {
@@ -626,6 +646,17 @@ Item {
             errorHideTimer.start();
         }
 
+        // RentPass: the server config fetch has settled (server config
+        // imported, or bundled fallback used). Show the game card now.
+        function onRentPassConfigReady() {
+            if (root.rentPassConfigSettled)
+                return
+            root.rentPassConfigSettled = true
+            rentPassConfigTimeoutTimer.stop()
+            if (!root.rentPassSessionEnded)
+                root.showRentPassMainView()
+        }
+
         function onRegistDialogRequested(host, ps5, duid) {
             if(!duid)
                 showRegistDialog(host, ps5);
@@ -658,7 +689,13 @@ Item {
                 root.rentPassSessionToken = sessionToken
                 root.rentPassGameLabel = gameLabel
                 root.rentPassTimeRemaining = timeRemainingSeconds
-                root.showRentPassMainView()
+                // RentPass: fetch the current settings file from the server
+                // and import it (bundled config is the fallback). The game
+                // card appears when rentPassConfigReady fires, or after
+                // 10 s via the safety timer if the signal never arrives.
+                root.rentPassConfigSettled = false
+                rentPassConfigTimeoutTimer.start()
+                Chiaki.rentPassFetchServerConfig()
             }
         }
     }
