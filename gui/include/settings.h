@@ -237,6 +237,11 @@ class Settings : public QObject
 		// so the console is already set up. No-op if the file is missing or
 		// already imported (marker key rentpass_config_imported).
 		void ImportRentPassConfig();
+		// RentPass: mark a RentPass config (bundled or server-fetched) as
+		// imported, so a later restart does not re-import the bundled file
+		// over it. ImportSettings clears the settings first, which wipes
+		// this marker, so callers that import a server config must re-set it.
+		void MarkRentPassConfigImported();
 		// RentPass: wipe all live settings (used on session expiry/revoke so
 		// the app has no console, keys or keymap left).
 		void ClearAll();
