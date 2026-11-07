@@ -85,7 +85,7 @@ jobs:
         tag: weekly-canary-release-${{ github.sha }}
         allowUpdates: true
         bodyFile: "${{ github.workspace }}/release_notes.md"
-        token: "${{ secrets.WEEKLY_PAT }}"
+        token: "${{ secrets.GITHUB_TOKEN }}"
     - name: Delete older weekly releases
       # only weekly builds: keep this one and the one before it, and leave release candidates such
       # as v1.10.1-rc1 alone, which the old cleanup deleted along with every other pre-release
@@ -188,7 +188,7 @@ jobs:
 
       - name: Configure chiaki-ng
         run: |
-          cmake -S . -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCHIAKI_ENABLE_CLI=OFF
+          cmake -S . -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCHIAKI_ENABLE_CLI=OFF -DCHIAKI_ENABLE_STEAMDECK_NATIVE=OFF
 
       - name: Build chiaki-ng
         run: |
@@ -264,7 +264,6 @@ jobs:
             curl:p
             fast_float:p
             fftw:p
-            hidapi:p
             json-c:p
             libevent:p
             lcms2:p
@@ -316,7 +315,7 @@ jobs:
 
       - name: Configure chiaki-ng
         run: |
-          cmake -S . -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCHIAKI_ENABLE_CLI=OFF
+          cmake -S . -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCHIAKI_ENABLE_CLI=OFF -DCHIAKI_ENABLE_STEAMDECK_NATIVE=OFF
 
       - name: Build chiaki-ng
         run: |
