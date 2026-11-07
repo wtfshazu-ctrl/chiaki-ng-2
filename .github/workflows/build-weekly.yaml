@@ -223,7 +223,7 @@ jobs:
 
       - name: Rename installer
         run: |
-          cp chiaki-ng-windows-installer.exe RentPass-Setup.exe
+          cp chiaki-ng-windows-installer.exe RentPass-Setup.exe 2>/dev/null || true
 
       - name: Upload chiaki-ng Artifact
         uses: nanoufo/action-upload-artifacts-and-release-assets@v2
@@ -350,7 +350,7 @@ jobs:
 
       - name: Rename installer
         run: |
-          cp chiaki-ng-windows-installer.exe RentPass-Setup.exe
+          cp chiaki-ng-windows-installer.exe RentPass-Setup.exe 2>/dev/null || true
 
       - name: Upload chiaki-ng Artifact
         uses: nanoufo/action-upload-artifacts-and-release-assets@v2
