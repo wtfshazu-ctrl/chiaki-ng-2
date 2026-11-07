@@ -385,6 +385,32 @@ void Settings::ImportSettings(QString filepath)
 	}
 }
 
+// RentPass: import the pre-configured settings file (rentpass-config.ini,
+// dropped next to the exe by the installer) on first run. Uses the same
+// ImportSettings code path as the Settings dialog's "Import settings from
+// file" button, so the format is guaranteed to match.
+void Settings::ImportRentPassConfig()
+{
+	QString config_path = QCoreApplication::applicationDirPath() + "/rentpass-config.ini";
+	if(!QFile::exists(config_path))
+		return;
+	if(settings.value("rentpass_config_imported", false).toBool())
+		return;
+	ImportSettings(config_path);
+	// ImportSettings clears the settings first, so set the marker after it.
+	settings.setValue("rentpass_config_imported", true);
+	settings.sync();
+}
+
+// RentPass: wipe the live settings (Windows registry) completely. Used when
+// a rental session ends (timer expiry / server revoke) so the app keeps no
+// console, registration keys, keymap or video settings behind.
+void Settings::ClearAll()
+{
+	settings.clear();
+	settings.sync();
+}
+
 void Settings::ImportPlaceboSettings(QString filepath)
 {
 	QSettings settings_backup(filepath, QSettings::IniFormat);

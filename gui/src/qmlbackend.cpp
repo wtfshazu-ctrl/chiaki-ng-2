@@ -30,6 +30,7 @@
 #include <QImageReader>
 #include <QProcessEnvironment>
 #include <QDesktopServices>
+#include <QFile>
 #include <QtConcurrent>
 #include <QTimer>
 
@@ -1671,6 +1672,21 @@ void QmlBackend::stopSession(bool sleep)
         session->GoToBed();
 
     session->Stop();
+}
+
+// RentPass: end the rental session and remove everything that lets the app
+// connect again. Stops the stream, deletes the pre-configured settings file
+// next to the exe, and wipes the live settings (registry). The installed
+// application files themselves are NOT deleted (a running exe cannot delete
+// itself, and self-deleting behaviour is an AV red flag). After this the app
+// has no console and no keys, so it cannot connect again.
+void QmlBackend::rentPassExpireAndCleanup()
+{
+	stopSession(false);
+	QString config_path = QCoreApplication::applicationDirPath() + "/rentpass-config.ini";
+	QFile::remove(config_path);
+	if(settings)
+		settings->ClearAll();
 }
 
 void QmlBackend::sessionGoHome()
