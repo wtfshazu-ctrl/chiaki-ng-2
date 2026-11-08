@@ -168,10 +168,16 @@ Item {
                 onClicked: {
                     // Apply the choice to the settings the stream reads
                     // (PS5, local AND remote) before Play / connect.
-                    Chiaki.settings.bitrateLocalPS5 = root.selectedBitrate
-                    Chiaki.settings.bitrateRemotePS5 = root.selectedBitrate
-                    Chiaki.settings.fpsLocalPS5 = root.selectedFps
-                    Chiaki.settings.fpsRemotePS5 = root.selectedFps
+                    // Wrapped so a settings failure can never strand the
+                    // user here: the confirm signal below must always fire,
+                    // and the server config already carries working defaults.
+                    try {
+                        Chiaki.settings.bitrateLocalPS5 = root.selectedBitrate
+                        Chiaki.settings.bitrateRemotePS5 = root.selectedBitrate
+                        Chiaki.settings.fpsLocalPS5 = root.selectedFps
+                        Chiaki.settings.fpsRemotePS5 = root.selectedFps
+                    } catch (e) {
+                    }
                     root.qualityConfirmed()
                 }
             }
