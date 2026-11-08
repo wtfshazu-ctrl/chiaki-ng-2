@@ -37,7 +37,7 @@
 #define PS5_TOUCHPAD_MAX_Y 1079.0f
 // Mouse Assist: mouse movement drives the right analog stick (camera/aim).
 // At sensitivity 1.0, this many pixels of mouse travel deflect the stick fully.
-#define MOUSE_ASSIST_PIXELS_TO_FULL_DEFLECTION 50.0f
+#define MOUSE_ASSIST_PIXELS_TO_FULL_DEFLECTION 40.0f
 #define MOUSE_ASSIST_DECAY_INTERVAL_MS 16
 #define MOUSE_ASSIST_DECAY_IDLE_MS 16
 #define MOUSE_ASSIST_DECAY_FACTOR 0.0f
