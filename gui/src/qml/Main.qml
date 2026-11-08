@@ -170,6 +170,12 @@ Item {
         stack.replace(stack.get(0), rentPassMainViewComponent);
     }
 
+    // RentPass: show the quality picker (bitrate + FPS) after a valid
+    // redeem and after the server config is imported, before Play Now.
+    function showRentPassQuality() {
+        stack.replace(stack.get(0), rentPassQualityComponent);
+    }
+
     function showStreamView() {
         stack.replace(stack.get(0), streamViewComponent);
     }
@@ -337,16 +343,16 @@ Item {
 
     // RentPass: safety net for the post-redeem server-config fetch. If the
     // rentPassConfigReady signal never arrives (e.g. an older build without
-    // it), still show the game card after 10 s instead of stranding the
-    // user on the redeem screen. The bundled config is already live from
-    // the first-run import, so Play Now works either way.
+    // it), still show the quality picker after 10 s instead of stranding
+    // the user on the redeem screen. The bundled config is already live
+    // from the first-run import, so Play Now works either way.
     Timer {
         id: rentPassConfigTimeoutTimer
         interval: 10000
         onTriggered: {
             if (!root.rentPassConfigSettled && !root.rentPassSessionEnded) {
                 root.rentPassConfigSettled = true
-                root.showRentPassMainView()
+                root.showRentPassQuality()
             }
         }
     }
@@ -647,14 +653,16 @@ Item {
         }
 
         // RentPass: the server config fetch has settled (server config
-        // imported, or bundled fallback used). Show the game card now.
+        // imported, or bundled fallback used). Show the quality picker
+        // (bitrate + FPS) now; the game card appears after the customer
+        // confirms a quality.
         function onRentPassConfigReady() {
             if (root.rentPassConfigSettled)
                 return
             root.rentPassConfigSettled = true
             rentPassConfigTimeoutTimer.stop()
             if (!root.rentPassSessionEnded)
-                root.showRentPassMainView()
+                root.showRentPassQuality()
         }
 
         function onRegistDialogRequested(host, ps5, duid) {
@@ -697,6 +705,14 @@ Item {
                 rentPassConfigTimeoutTimer.start()
                 Chiaki.rentPassFetchServerConfig()
             }
+        }
+    }
+
+    Component {
+        id: rentPassQualityComponent
+        RentPassQuality {
+            timeRemaining: root.rentPassTimeRemaining
+            onQualityConfirmed: root.showRentPassMainView()
         }
     }
 

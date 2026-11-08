@@ -34,21 +34,14 @@ Item {
             width: Math.min(parent.width * 0.85, 420)
             spacing: 16
 
-            // Logo
+            // RentPass logo (full image, not cropped). This is the brand
+            // mark — there is no "RentPass" text label below it.
             Image {
                 source: "qrc:/icons/rentpass-logo.png"
                 Layout.alignment: Qt.AlignHCenter
-                Layout.preferredWidth: 220
-                Layout.preferredHeight: 110
+                Layout.preferredWidth: 200
+                Layout.preferredHeight: 200
                 fillMode: Image.PreserveAspectFit
-            }
-
-            Label {
-                text: "RentPass"
-                font.pixelSize: 32
-                font.bold: true
-                color: "#ffffff"
-                Layout.alignment: Qt.AlignHCenter
             }
 
             Label {
