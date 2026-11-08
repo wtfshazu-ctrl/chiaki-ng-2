@@ -111,9 +111,10 @@ jobs:
     if: needs.check-changes.outputs.win_x64 == 'true'
     env:
       sdl2_compat_tag: 2.32.74
+      MSYSTEM: mingw64
     defaults:
       run:
-        shell: msys2 {0}
+        shell: bash
     steps:
       - name: Disable autocrlf
         shell: pwsh
@@ -123,50 +124,36 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
-      - uses: msys2/setup-msys2@v2
-        with:
-          msystem: mingw64
-          update: true
-          install: git diffutils
-          pacboy: >-
-            ca-certificates:p
-            cc:p
-            cmake:p
-            curl:p
-            fast_float:p
-            ffmpeg:p
-            fftw:p
-            json-c:p
-            libevent:p
-            lcms2:p
-            libdovi:p
-            meson:p
-            miniupnpc:p
-            gcc:p
-            hidapi:p
-            nasm:p
-            ninja:p
-            openssl:p
-            opus:p
-            pkgconf:p
-            protobuf:p
-            python:p
-            python-psutil:p
-            python-glad:p
-            python-jinja:p
-            python-pip:p
-            qt6-base:p
-            qt6-declarative:p
-            qt6-svg:p
-            SDL3:p
-            sdl2-compat:p
-            shaderc:p
-            speexdsp:p
-            spirv-cross:p
-            vulkan:p
-            vulkan-headers:p
-            compiler-rt:p
-            
+      - name: Use pre-installed MSYS2 and install packages
+        # The GitHub-hosted windows-latest runner already has MSYS2 at
+        # C:\msys64. The setup-msys2 action downloads a fresh MSYS2 from
+        # GitHub releases, which return HTTP 504 during the ongoing GitHub
+        # outage (runs #12-#17 all died there), so use the pre-installed
+        # one instead. Packages come from repo.msys2.org via pacman, which
+        # is independent of GitHub releases. The `bash` shell below resolves
+        # to the pre-installed MSYS2 bash via the PATH set here.
+        shell: pwsh
+        run: |
+          Add-Content $env:GITHUB_PATH "C:\msys64\mingw64\bin"
+          Add-Content $env:GITHUB_PATH "C:\msys64\usr\bin"
+      - name: Install MSYS2 packages
+        run: |
+          pacman -Sy --noconfirm
+          pacman -S --noconfirm --needed \
+            mingw-w64-x86_64-ca-certificates mingw-w64-x86_64-cc mingw-w64-x86_64-cmake \
+            mingw-w64-x86_64-curl mingw-w64-x86_64-fast_float mingw-w64-x86_64-ffmpeg \
+            mingw-w64-x86_64-fftw mingw-w64-x86_64-json-c mingw-w64-x86_64-libevent \
+            mingw-w64-x86_64-lcms2 mingw-w64-x86_64-libdovi mingw-w64-x86_64-meson \
+            mingw-w64-x86_64-miniupnpc mingw-w64-x86_64-gcc mingw-w64-x86_64-hidapi \
+            mingw-w64-x86_64-nasm mingw-w64-x86_64-ninja mingw-w64-x86_64-openssl \
+            mingw-w64-x86_64-opus mingw-w64-x86_64-pkgconf mingw-w64-x86_64-protobuf \
+            mingw-w64-x86_64-python mingw-w64-x86_64-python-psutil mingw-w64-x86_64-python-glad \
+            mingw-w64-x86_64-python-jinja mingw-w64-x86_64-python-pip \
+            mingw-w64-x86_64-qt6-base mingw-w64-x86_64-qt6-declarative mingw-w64-x86_64-qt6-svg \
+            mingw-w64-x86_64-SDL3 mingw-w64-x86_64-sdl2-compat mingw-w64-x86_64-shaderc \
+            mingw-w64-x86_64-speexdsp mingw-w64-x86_64-spirv-cross mingw-w64-x86_64-vulkan \
+            mingw-w64-x86_64-vulkan-headers mingw-w64-x86_64-compiler-rt \
+            git diffutils make unzip zip
       - name: Install python protobuf and zip
         run: |
           pip install protobuf
