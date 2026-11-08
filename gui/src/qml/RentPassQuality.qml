@@ -1,10 +1,11 @@
-// RentPassQuality.qml — quality choice after a valid redeem, before Play.
-// The customer picks a stream quality (bitrate) and a frame rate so a
-// low-end laptop still gets a smooth stream. Default is High / 60 FPS,
-// which is the HD behaviour from the server config, so existing users
-// are unaffected. The choice is written to the same settings the stream
-// reads (Chiaki.settings bitrate/fps for PS5, local AND remote) before
-// the main view / Play appears, so it takes effect for this session.
+// RentPassQuality.qml — stream settings after a valid redeem, before Play.
+// This is the stock Chiaki "Stream" settings (resolution, frame rate,
+// bitrate), shown after redeem so the customer picks what runs best on
+// their own device — especially a low-end laptop. There is no premade
+// quality preset here: the controls write straight to the same settings
+// the stream reads (Chiaki.settings, PS5, local AND remote), exactly
+// like the Stream tab in the stock settings. The customer changes
+// anything, then Continue shows the main view (Play Now).
 // This screen is part of the redeem flow only — there is no settings
 // menu anywhere else. ALL text is English.
 
@@ -21,11 +22,6 @@ Item {
     signal qualityConfirmed()
 
     property int timeRemaining: 0
-
-    // Bitrate in kbps. Low = 10000, Medium = 25000, High = 50000.
-    // Applied to BOTH local and remote bitrate.
-    property int selectedBitrate: 50000
-    property int selectedFps: 60
 
     Material.theme: Material.Dark
     Material.accent: "#96a6fd"
@@ -59,7 +55,7 @@ Item {
             }
 
             Label {
-                text: "Choose your quality"
+                text: "Stream settings"
                 font.pixelSize: 24
                 font.bold: true
                 color: "#ffffff"
@@ -67,7 +63,7 @@ Item {
             }
 
             Label {
-                text: "Pick a quality that runs smoothly on your laptop."
+                text: "Choose the resolution, frame rate and bitrate that run best on your laptop."
                 font.pixelSize: 13
                 color: "#96a6fd"
                 Layout.alignment: Qt.AlignHCenter
@@ -77,7 +73,7 @@ Item {
             }
 
             Label {
-                text: "Stream quality"
+                text: "Resolution"
                 font.pixelSize: 15
                 font.bold: true
                 color: "#ffffff"
@@ -85,54 +81,20 @@ Item {
                 Layout.topMargin: 8
             }
 
-            GridLayout {
-                Layout.alignment: Qt.AlignHCenter
-                columns: 3
-                columnSpacing: 12
-                rowSpacing: 8
-
-                ButtonGroup { id: bitrateGroup }
-
-                RadioButton {
-                    text: "Lower"
-                    ButtonGroup.group: bitrateGroup
-                    onCheckedChanged: if (checked) root.selectedBitrate = 5000
-                }
-
-                RadioButton {
-                    text: "Low"
-                    ButtonGroup.group: bitrateGroup
-                    onCheckedChanged: if (checked) root.selectedBitrate = 8000
-                }
-
-                RadioButton {
-                    text: "Semi Low"
-                    ButtonGroup.group: bitrateGroup
-                    onCheckedChanged: if (checked) root.selectedBitrate = 15000
-                }
-
-                RadioButton {
-                    text: "Medium"
-                    ButtonGroup.group: bitrateGroup
-                    onCheckedChanged: if (checked) root.selectedBitrate = 25000
-                }
-
-                RadioButton {
-                    text: "Semi Medium"
-                    checked: true
-                    ButtonGroup.group: bitrateGroup
-                    onCheckedChanged: if (checked) root.selectedBitrate = 50000
-                }
-
-                RadioButton {
-                    text: "High"
-                    ButtonGroup.group: bitrateGroup
-                    onCheckedChanged: if (checked) root.selectedBitrate = 100000
+            ComboBox {
+                Layout.fillWidth: true
+                model: ["360p", "540p", "720p", "1080p (Default)"]
+                currentIndex: Chiaki.settings.resolutionRemotePS5 - 1
+                onActivated: (index) => {
+                    Chiaki.settings.resolutionLocalPS5 = index + 1
+                    Chiaki.settings.resolutionRemotePS5 = index + 1
+                    Chiaki.settings.bitrateLocalPS5 = 0
+                    Chiaki.settings.bitrateRemotePS5 = 0
                 }
             }
 
             Label {
-                text: "Lower uses the least data. High is the best picture."
+                text: "Lower resolution runs smoother on slow laptops."
                 font.pixelSize: 11
                 color: "#888888"
                 Layout.alignment: Qt.AlignHCenter
@@ -150,28 +112,57 @@ Item {
                 Layout.topMargin: 8
             }
 
-            RowLayout {
-                Layout.alignment: Qt.AlignHCenter
-                spacing: 12
-
-                ButtonGroup { id: fpsGroup }
-
-                RadioButton {
-                    text: "30 FPS"
-                    ButtonGroup.group: fpsGroup
-                    onCheckedChanged: if (checked) root.selectedFps = 30
-                }
-
-                RadioButton {
-                    text: "60 FPS"
-                    checked: true
-                    ButtonGroup.group: fpsGroup
-                    onCheckedChanged: if (checked) root.selectedFps = 60
+            ComboBox {
+                Layout.fillWidth: true
+                model: ["30 fps", "60 fps (Default)"]
+                currentIndex: (Chiaki.settings.fpsRemotePS5 / 30) - 1
+                onActivated: (index) => {
+                    Chiaki.settings.fpsLocalPS5 = (index + 1) * 30
+                    Chiaki.settings.fpsRemotePS5 = (index + 1) * 30
                 }
             }
 
             Label {
-                text: "30 FPS is smoother on slow laptops. 60 FPS is the smoothest motion."
+                text: "Bitrate"
+                font.pixelSize: 15
+                font.bold: true
+                color: "#ffffff"
+                Layout.alignment: Qt.AlignHCenter
+                Layout.topMargin: 8
+            }
+
+            Slider {
+                id: bitrateSlider
+                Layout.fillWidth: true
+                property int defaultBitrate: {
+                    var rate = 15;
+                    switch (Chiaki.settings.resolutionRemotePS5) {
+                    case 1: rate = 2; break; // 360p
+                    case 2: rate = 6; break; // 540p
+                    case 3: rate = 10; break; // 720p
+                    case 4: rate = 15; break; // 1080p
+                    }
+                    return rate;
+                }
+                from: 2
+                to: 100
+                stepSize: 1
+                value: Chiaki.settings.bitrateRemotePS5 / 1000 ? (Chiaki.settings.bitrateRemotePS5 / 1000) : defaultBitrate
+                onMoved: {
+                    Chiaki.settings.bitrateLocalPS5 = value * 1000
+                    Chiaki.settings.bitrateRemotePS5 = value * 1000
+                }
+            }
+
+            Label {
+                text: bitrateSlider.value + " Mbps"
+                font.pixelSize: 13
+                color: "#ffffff"
+                Layout.alignment: Qt.AlignHCenter
+            }
+
+            Label {
+                text: "Slide left for a smoother stream on a slow laptop, right for a sharper picture."
                 font.pixelSize: 11
                 color: "#888888"
                 Layout.alignment: Qt.AlignHCenter
@@ -186,18 +177,9 @@ Item {
                 Layout.topMargin: 8
                 Material.background: "#6b4fd8"
                 onClicked: {
-                    // Apply the choice to the settings the stream reads
-                    // (PS5, local AND remote) before Play / connect.
-                    // Wrapped so a settings failure can never strand the
-                    // user here: the confirm signal below must always fire,
-                    // and the server config already carries working defaults.
-                    try {
-                        Chiaki.settings.bitrateLocalPS5 = root.selectedBitrate
-                        Chiaki.settings.bitrateRemotePS5 = root.selectedBitrate
-                        Chiaki.settings.fpsLocalPS5 = root.selectedFps
-                        Chiaki.settings.fpsRemotePS5 = root.selectedFps
-                    } catch (e) {
-                    }
+                    // The controls above already wrote the choice to the
+                    // settings the stream reads, so Continue only has to
+                    // move on to the main view.
                     root.qualityConfirmed()
                 }
             }
