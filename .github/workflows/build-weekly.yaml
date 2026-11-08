@@ -143,6 +143,7 @@ jobs:
             meson:p
             miniupnpc:p
             gcc:p
+            hidapi:p
             nasm:p
             ninja:p
             openssl:p
@@ -157,6 +158,8 @@ jobs:
             qt6-base:p
             qt6-declarative:p
             qt6-svg:p
+            SDL3:p
+            sdl2-compat:p
             shaderc:p
             speexdsp:p
             spirv-cross:p
@@ -183,10 +186,16 @@ jobs:
           ls /mingw64/bin/avcodec-*.dll /mingw64/lib/libavcodec.dll.a
 
       - name: Build sdl2-compat
+        # SDL3, sdl2-compat and hidapi are installed via pacman (pacboy
+        # SDL3:p, sdl2-compat:p, hidapi:p) into /mingw64. The old
+        # build-sdl2-compat.sh / build-hidapi.sh scripts download tarballs
+        # from GitHub releases, which return HTTP 504, so verify the
+        # pacman install instead of downloading and building from source.
+        # chiaki-ng looks SDL2 up as "sdl2", so keep the .pc alias.
         run: |
-          INSTALL_PREFIX=/mingw64 scripts/build-sdl2-compat.sh .
-          INSTALL_PREFIX=/mingw64 scripts/build-hidapi.sh .
+          pkg-config --modversion sdl3 sdl2-compat hidapi
           cp /mingw64/lib/pkgconfig/sdl2-compat.pc /mingw64/lib/pkgconfig/sdl2.pc
+          ls /mingw64/bin/SDL3.dll /mingw64/bin/SDL2.dll /mingw64/lib/libhidapi.dll.a
 
       - name: Configure chiaki-ng
         run: |
