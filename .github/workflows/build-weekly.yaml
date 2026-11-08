@@ -134,6 +134,7 @@ jobs:
             cmake:p
             curl:p
             fast_float:p
+            ffmpeg:p
             fftw:p
             json-c:p
             libevent:p
@@ -173,12 +174,13 @@ jobs:
           scripts/build-libplacebo-windows.sh
 
       - name: Setup ffmpeg
+        # ffmpeg is installed via pacman (pacboy ffmpeg:p) into /mingw64.
+        # The old streetpea/FFmpeg-Builds release download is gone (its
+        # release downloads return HTTP 504), so verify the pacman install
+        # instead of downloading a zip.
         run: |
-          curl -LO https://github.com/streetpea/FFmpeg-Builds/releases/download/latest/ffmpeg-n9.0-latest-win64-gpl-shared-9.0.zip
-          unzip ffmpeg-n9.0-latest-win64-gpl-shared-9.0.zip
-          cp -a "ffmpeg-n9.0-latest-win64-gpl-shared-9.0/bin/." /mingw64/bin
-          cp -a "ffmpeg-n9.0-latest-win64-gpl-shared-9.0/include/." /mingw64/include
-          cp -a "ffmpeg-n9.0-latest-win64-gpl-shared-9.0/lib/." /mingw64/lib
+          pkg-config --modversion libavcodec libavformat libavutil libswscale
+          ls /mingw64/bin/avcodec-*.dll /mingw64/lib/libavcodec.dll.a
 
       - name: Build sdl2-compat
         run: |
