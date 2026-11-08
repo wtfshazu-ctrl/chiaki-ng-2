@@ -661,6 +661,9 @@ Item {
                 return
             root.rentPassConfigSettled = true
             rentPassConfigTimeoutTimer.stop()
+            // RentPass: lift the picture brightness slightly (the SDR
+            // stream reads a touch dark on some laptops).
+            Chiaki.settings.placeboColorAdjustmentBrightness = 0.05
             if (!root.rentPassSessionEnded)
                 root.showRentPassQuality()
         }

@@ -85,16 +85,30 @@ Item {
                 Layout.topMargin: 8
             }
 
-            RowLayout {
+            GridLayout {
                 Layout.alignment: Qt.AlignHCenter
-                spacing: 12
+                columns: 3
+                columnSpacing: 12
+                rowSpacing: 8
 
                 ButtonGroup { id: bitrateGroup }
 
                 RadioButton {
+                    text: "Lower"
+                    ButtonGroup.group: bitrateGroup
+                    onCheckedChanged: if (checked) root.selectedBitrate = 5000
+                }
+
+                RadioButton {
                     text: "Low"
                     ButtonGroup.group: bitrateGroup
-                    onCheckedChanged: if (checked) root.selectedBitrate = 10000
+                    onCheckedChanged: if (checked) root.selectedBitrate = 8000
+                }
+
+                RadioButton {
+                    text: "Semi Low"
+                    ButtonGroup.group: bitrateGroup
+                    onCheckedChanged: if (checked) root.selectedBitrate = 15000
                 }
 
                 RadioButton {
@@ -104,15 +118,21 @@ Item {
                 }
 
                 RadioButton {
-                    text: "High"
+                    text: "Semi Medium"
                     checked: true
                     ButtonGroup.group: bitrateGroup
                     onCheckedChanged: if (checked) root.selectedBitrate = 50000
                 }
+
+                RadioButton {
+                    text: "High"
+                    ButtonGroup.group: bitrateGroup
+                    onCheckedChanged: if (checked) root.selectedBitrate = 100000
+                }
             }
 
             Label {
-                text: "Low runs smooth on slow laptops. High is the best picture."
+                text: "Lower uses the least data. High is the best picture."
                 font.pixelSize: 11
                 color: "#888888"
                 Layout.alignment: Qt.AlignHCenter
