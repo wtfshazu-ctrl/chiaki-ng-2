@@ -144,16 +144,22 @@ jobs:
             mingw-w64-x86_64-curl mingw-w64-x86_64-fast_float mingw-w64-x86_64-ffmpeg \
             mingw-w64-x86_64-fftw mingw-w64-x86_64-json-c mingw-w64-x86_64-libevent \
             mingw-w64-x86_64-lcms2 mingw-w64-x86_64-libdovi mingw-w64-x86_64-meson \
-            mingw-w64-x86_64-miniupnpc mingw-w64-x86_64-gcc mingw-w64-x86_64-hidapi \
+            mingw-w64-x86_64-miniupnpc mingw-w64-x86_64-gcc \
             mingw-w64-x86_64-nasm mingw-w64-x86_64-ninja mingw-w64-x86_64-openssl \
             mingw-w64-x86_64-opus mingw-w64-x86_64-pkgconf mingw-w64-x86_64-protobuf \
             mingw-w64-x86_64-python mingw-w64-x86_64-python-psutil mingw-w64-x86_64-python-glad \
             mingw-w64-x86_64-python-jinja mingw-w64-x86_64-python-pip \
             mingw-w64-x86_64-qt6-base mingw-w64-x86_64-qt6-declarative mingw-w64-x86_64-qt6-svg \
-            mingw-w64-x86_64-SDL3 mingw-w64-x86_64-sdl2-compat mingw-w64-x86_64-shaderc \
+            mingw-w64-x86_64-sdl3 mingw-w64-x86_64-sdl2-compat mingw-w64-x86_64-shaderc \
             mingw-w64-x86_64-speexdsp mingw-w64-x86_64-spirv-cross mingw-w64-x86_64-vulkan \
             mingw-w64-x86_64-vulkan-headers mingw-w64-x86_64-compiler-rt \
             git diffutils make unzip zip
+      - name: Build hidapi from source
+        # hidapi has no pacman package in the mingw64 repo, so build it from
+        # source like the original workflow did. This clones via git (not a
+        # GitHub release download), so it works during the release outage.
+        run: |
+          INSTALL_PREFIX=/mingw64 scripts/build-hidapi.sh .
       - name: Install python protobuf and zip
         run: |
           pip install protobuf
