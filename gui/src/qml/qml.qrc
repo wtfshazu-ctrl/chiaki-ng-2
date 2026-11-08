@@ -3,6 +3,7 @@
     <file>qtquickcontrols2.conf</file>
     <file>Main.qml</file>
     <file>RentPassRedeem.qml</file>
+    <file>RentPassQuality.qml</file>
     <file>RentPassMainView.qml</file>
     <file>RentPassTimer.qml</file>
     <file>MainView.qml</file>
